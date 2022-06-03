@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <!-- js파일은 javaScript코드가 포함된 텍스트 파일 / web3정보가 있는 javaScript코드 -->
+    <script src="./web3.min.js"></script>
+    <script>
+        // window객체 : 브라우저 안 모든 요소들이 소속된 객체 , 최상위에 있기때문에 어디서든 접근이 가능한 전역객체
+        // 전역객체 : 말 그대로 객체를 명시하지 않아도 암시적으로 window의 프로퍼티로 간주
+        // load : 모든 리소스(이미지, 스크립트) 들이 로딩이 완료되면 실행시키는 이벤트 
+        window.addEventListener('load', function() {
+            if (typeof web3 !== 'undefined') {
+                console.log('Web3 Detected!')
+                window.web3 = new Web3(web3.currentProvider);
+            } else {
+                console.log('using HTTP Provider')
+                // httpProvider : http에서 동작하는 node에 연결하기 위해 사용 
+                window.web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
+                //console.log(window.web3);
+            }
+        })
+
+        function getBalance() {
+            var address, wei, balance
+            
+            address = document.getElementById('address').value;
+            console.log('이더리움 주소 : ' , address);
+
+            try {
+                web3.eth.getBalance(address, function(error, wei) {
+                    if (!error) {                                  
+                        var balance = web3.fromWei(wei, 'ether'); 
+                        console.log('이더 잔액 : ' , balance);
+                        document.getElementById("output").innerHTML = balance + "ETH"
+                    }
+                });
+            } catch (error) {
+                document.getElementById("output").innerHTML = error;
+            }
+        }
+
+        function sender() {
+            const from = document.getElementById('fromAddress').value;
+            const to = document.getElementById('toAddress').value;
+
+            const ether = document.getElementById('eth').value;
+            const value = web3.toWei(ether , "ether")
+            
+            web3.eth.sendTransaction({from , to , value} , function(error , result) {
+                if(error) console.log(error)
+                else console.log(result)
+            });
+
+            
+        }
+        
+    </script>
+</head>
+<body>
+    <h1>ETH</h1>
+    <p>이더 주소 :</p>
+    <input type="text" size="50" id="address" placeholder="주소" />
+    <button type="button" onClick="getBalance()">Get Balance</button>
+    <br />
+    <div>확인된 이더</div><div id="output"></div>
+    <br />
+    <input type="text" size="50" id="fromAddress" placeholder="보내는 주소" />
+    <br />
+    <input type="number" id="eth" placeholder="보낼 값"/>
+    <button type="button" onclick="sender()">확인</button>
+    <div id="outEth"></div>
+    <br />
+    <input type="text" size="50" id="toAddress" placeholder="받는 주소" />
+    <br />
+</body>
+</html>
